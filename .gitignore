@@ -1,0 +1,7 @@
+.Rproj.*
+.Rhistory
+.RData
+
+shinyapps
+
+/x86_64-unknown-linux-gnu-library

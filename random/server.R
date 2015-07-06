@@ -96,7 +96,7 @@ shinyServer(function(input, output) {
             mit weniger als 50 zu gering. Für eine gültige Aussage müssen 
             mindestens 50 Zahlen gegeben sein.</span>')
     } else {
-      paste("Die Anzahl der Zufallszahlen mit über 50 ausreichend.")
+      paste("Die Anzahl der Zufallszahlen ist mit über 50 ausreichend.")
     }
   })
   

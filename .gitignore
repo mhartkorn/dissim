@@ -2,6 +2,9 @@
 .Rhistory
 .RData
 
+# shinyapps.io files
 shinyapps
+rsconnect
 
 /x86_64-unknown-linux-gnu-library
+.Rproj.user

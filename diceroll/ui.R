@@ -9,7 +9,8 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for the number of bins
   sidebarLayout(
     sidebarPanel(
-      numericInput("numSides", label = "Seiten pro Würfel (Änderung würfelt neu)", min = 2, max = 100, value = 6),
+      numericInput("numSides", label 
+                   = "Seiten pro Würfel (Änderung würfelt neu)", min = 2, max = 100, value = 6),
       numericInput("numThrows", label = "Anzahl der Würfe", min = 1, max = 20000, value = 50)
     ),
     

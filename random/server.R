@@ -2,14 +2,39 @@ library(shiny)
 library(scatterplot3d)
 
 shinyServer(function(input, output) {
-  vars <- reactiveValues(rawNum = runif(3000))
+  vars <- reactiveValues(rawNum = runif(1500))
   
   observe({
-    RNGkind(input$cbChoices)
-    vars$rawNum <- runif(input$numNumbers)
+    if(input$cbChoices == "RANDU") {
+      # RANDU implementation
+
+      IMAX = 2^31;
+      iseed = runif(1)
+      RANDU <- function() {
+        iseed <<-  (iseed * 65539) %% IMAX
+        randu <- iseed / IMAX
+        return(randu)
+      }
+      
+      # Allocate memory
+      tmp <- double(input$numNumbers)
+
+      for(i in 1:input$numNumbers) {
+        tmp[i] <- RANDU()
+      }
+      
+      vars$rawNum <- tmp
+    } else {
+      RNGkind(input$cbChoices)
+      vars$rawNum <- runif(input$numNumbers)
+    }
   })
   
   computeCombine3 <- reactive({
+    if(input$numNumbers < 3) {
+      return(list(x = 0, y = 0, z = 0))
+    }
+
     x <- double(input$numNumbers / 3)
     y <- double(input$numNumbers / 3)
     z <- double(input$numNumbers / 3)
@@ -65,7 +90,7 @@ shinyServer(function(input, output) {
   output$pSpectral3d <- renderPlot({
     combined <- computeCombine3()
     
-    scatterplot3d(combined$x, combined$y, combined$z, pch=16)
+    scatterplot3d(combined$x, combined$y, combined$z, pch=16, angle=input$angle)
   })
   
   ksTest <- reactive({

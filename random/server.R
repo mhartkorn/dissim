@@ -7,23 +7,26 @@ shinyServer(function(input, output) {
   observe({
     if(input$cbChoices == "RANDU") {
       # RANDU implementation
+      RANDU <- function(a, c, m, r, seed) {
+        if(r <= 0) {
+          return(0)
+        }
 
-      IMAX = 2^31;
-      iseed = runif(1)
-      RANDU <- function() {
-        iseed <<-  (iseed * input$numRandu) %% IMAX
-        randu <- iseed / IMAX
-        return(randu)
+        x <- rep(0, r)
+        x[1] <- seed
+        for (i in 1:(r - 1)) {
+          x[i+1] <-(a * x[i] + c) %% m
+        }
+        
+        for(i in 1:r) {
+          x[i] = x[i] / m
+        }
+        return(x)
       }
       
-      # Allocate memory
-      tmp <- double(input$numNumbers)
-
-      for(i in 1:input$numNumbers) {
-        tmp[i] <- RANDU()
-      }
-      
-      vars$rawNum <- tmp
+      MAXINT = 2^31-1
+      vars$rawNum <- RANDU(a = 37, c = 1, r = input$numNumbers, 
+                           m = MAXINT, seed = runif(1) * MAXINT)
     } else {
       RNGkind(input$cbChoices)
       vars$rawNum <- runif(input$numNumbers)
@@ -35,9 +38,11 @@ shinyServer(function(input, output) {
       return(list(x = 0, y = 0, z = 0))
     }
 
-    x <- double(input$numNumbers / 3)
-    y <- double(input$numNumbers / 3)
-    z <- double(input$numNumbers / 3)
+    count <- input$numNumbers / 3
+    x <- rep(0, count)
+    y <- rep(0, count)
+    z <- rep(0, count)
+
     j <- 1
     
     loops <-input$numNumbers
@@ -45,23 +50,21 @@ shinyServer(function(input, output) {
       loops <- loops - (loops %% 3)
     }
     
-    for(i in 1:loops) {
-      if(i %% 3 == 0) {
-        z[j] <- vars$rawNum[i]
-        j <- j + 1
-      } else if (i %% 2 == 0) {
-        y[j] <- vars$rawNum[i]
-      } else {
-        x[j] <- vars$rawNum[i]
-      }
+    for(i in seq(1, loops, 3)) {
+      x[j] <- vars$rawNum[i]
+      z[j] <- vars$rawNum[i + 1]
+      y[j] <- vars$rawNum[i + 2]
+      j <- j + 1
     }
     
     return(list("x" = x, "y" = y, "z" = z))
   })
   
   computeCombine2 <- reactive({
-    x <- double(input$numNumbers / 2)
-    y <- double(input$numNumbers / 2)
+    count <- input$numNumbers / 2
+    x <- rep(0, count)
+    y <- rep(0, count)
+
     j <- 1
     
     loops <-input$numNumbers
@@ -69,13 +72,10 @@ shinyServer(function(input, output) {
       loops <- loops - 1
     }
     
-    for(i in 1:loops) {
-      if(i %% 2 == 0) {
-        y[j] <- vars$rawNum[i]
-        j <- j + 1
-      } else {
-        x[j] <- vars$rawNum[i]
-      }
+    for(i in seq(1, loops, 2)) {
+      x[j] <- vars$rawNum[i]
+      y[j] <- vars$rawNum[i + 1]
+      j <- j + 1
     }
     
     return(list("x" = x, "y" = y))

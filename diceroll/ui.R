@@ -18,14 +18,14 @@ shinyUI(fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("1 Würfel",
-                 textOutput("data"),
-                 plotOutput("distPlot"),
-                 plotOutput("densityPlot")
+                 #plotOutput("distPlot"),
+                 plotOutput("densityPlot"),
+                 textOutput("data")
         ),
         tabPanel("2 Würfel",
-                 textOutput("data2"),
-                 plotOutput("distPlot2"),
-                 plotOutput("densityPlot2")
+                 #plotOutput("distPlot2"),
+                 plotOutput("densityPlot2"),
+                 textOutput("data2")
         ),
         tabPanel("Rohdaten",
                  dataTableOutput("raw")

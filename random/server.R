@@ -11,7 +11,7 @@ shinyServer(function(input, output) {
       IMAX = 2^31;
       iseed = runif(1)
       RANDU <- function() {
-        iseed <<-  (iseed * 65539) %% IMAX
+        iseed <<-  (iseed * input$numRandu) %% IMAX
         randu <- iseed / IMAX
         return(randu)
       }

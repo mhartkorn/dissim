@@ -20,20 +20,20 @@ shinyServer(function(input, output) {
     vars$throws1[1:input$numThrows]
   })
   
-  output$distPlot <- renderPlot({
-    histData = data.frame(x = computeThrows1())
-    ggplot(histData, aes(x)) +
-      geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
-      scale_x_continuous(breaks = 1:input$numSides) +
-      ylab("Absolute Häufigkeit") +
-      xlab("Augenzahl") +
-      theme_classic()
-  })
+  #output$distPlot <- renderPlot({
+  #  histData = data.frame(x = computeThrows1())
+  #  ggplot(histData, aes(x)) +
+  #    geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
+  #    scale_x_continuous(breaks = 1:input$numSides) +
+  #    ylab("Absolute Häufigkeit") +
+  #    xlab("Augenzahl") +
+  #    theme_classic()
+  #})
   
   output$densityPlot <- renderPlot({
     histData = data.frame(x = computeThrows1())
     ggplot(histData, aes(x, y = ..density..)) +
-      #geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
+      geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
       geom_density() +
       scale_x_continuous(breaks = 1:input$numSides, name = "Augenzahl") +
       ylab("Relative Häufigkeit") +
@@ -58,20 +58,20 @@ shinyServer(function(input, output) {
     return(res)
   })
   
-  output$distPlot2 <- renderPlot({
-    histData = data.frame(x = computeThrows2())
-    ggplot(histData, aes(x)) +
-      geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
-      scale_x_continuous(breaks = 1:(input$numSides * 2)) +
-      ylab("Absolute Häufigkeit") +
-      xlab("Augenzahl") +
-      theme_classic()
-  })
+  #output$distPlot2 <- renderPlot({
+  #  histData = data.frame(x = computeThrows2())
+  #  ggplot(histData, aes(x)) +
+  #    geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
+  #    scale_x_continuous(breaks = 1:(input$numSides * 2)) +
+  #    ylab("Absolute Häufigkeit") +
+  #    xlab("Augenzahl") +
+  #    theme_classic()
+  #})
   
   output$densityPlot2 <- renderPlot({
     histData = data.frame(x = computeThrows2())
     ggplot(histData, aes(x = x, y = ..density..)) +
-      #geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
+      geom_histogram(binwidth = 1, origin = -0.5, col = "white", fill = "darkgray") +
       geom_density(name = "Relative Häufigkeit") +
       scale_x_continuous(breaks = 1:(input$numSides * 2)) +
       ylab("Relative Häufigkeit") +

@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 
+/local
+
 # shinyapps.io files
 shinyapps
 rsconnect

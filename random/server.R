@@ -1,5 +1,6 @@
 library(shiny)
 library(scatterplot3d)
+library(ggplot2)
 
 shinyServer(function(input, output) {
   vars <- reactiveValues(rawNum = runif(1500))
@@ -123,6 +124,31 @@ shinyServer(function(input, output) {
     } else {
       paste("Die Anzahl der Zufallszahlen ist mit über 50 ausreichend.")
     }
+  })
+  
+  output$pAcceptReject <- renderPlot({
+    x <- seq(0, 1, 0.01)
+    #t <- function(x) { -((x-0.5)^4) - 2*(x-0.5)^2 + 1 }
+    t <- function(x) { 2 }
+    f <- function(x) { -8*(x-0.5)^2 + 2 }
+    c <- 2 # integral t(x)
+    r <- function(x) { t(x) / c }
+
+    yt <- t(x)
+    yf <- f(x)
+    yr <- r(x)
+    
+    accept <- data.frame(x, y=runif(x))
+    reject <- data.frame(x, y=runif(x))
+    
+    df <- data.frame(x, yt, yf, yr, accept, reject)
+
+    ggplot(df, aes(x)) +
+      geom_line(aes(y=yt), colour="red") +
+      geom_line(aes(y=yf), colour="blue") +
+      geom_line(aes(y=yr), colour="green") +
+      geom_point(aes(x = accept, y = accept), color="blue") +
+      geom_point(aes(x = accept, y = accept), color="red")
   })
   
   output$raw <- renderDataTable({

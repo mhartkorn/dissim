@@ -35,10 +35,6 @@ shinyUI(pageWithSidebar(
                sliderInput("angle", min = 0, max = 180, value = 88, 
                            label = "Winkel für 3D Graph"),
                plotOutput("pSpectral3d", width = "400px", height = "400px")
-      ),
-      tabPanel("Accept-Reject",
-               p("Testet Zufallszahlen auf Normalverteilung per Accept-Reject"),
-               plotOutput("pAcceptReject")
       )
     )
   )

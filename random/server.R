@@ -91,7 +91,7 @@ shinyServer(function(input, output) {
   output$pSpectral3d <- renderPlot({
     combined <- computeCombine3()
     
-    scatterplot3d(combined$x, combined$y, combined$z, pch=16, angle=input$angle)
+    scatterplot3d(combined$x, combined$y, combined$z, pch=16, angle=input$angle, xlab = "", ylab = "", zlab = "")
   })
   
   ksTest <- reactive({
@@ -124,62 +124,6 @@ shinyServer(function(input, output) {
     } else {
       paste("Die Anzahl der Zufallszahlen ist mit über 50 ausreichend.")
     }
-  })
-  
-  output$pAcceptReject <- renderPlot({
-    x <- seq(0, 1, 0.01)
-    #t <- function(x) { -((x-0.5)^4) - 2*(x-0.5)^2 + 1 }
-    t <- function(x) { 2 }
-    f <- function(x) { -8*(x-0.5)^2 + 2 }
-    c <- 2 # integral t(x)
-    r <- function(x) { t(x) / c }
-
-    yt <- t(x)
-    yf <- f(x)
-    yr <- r(x)
-    
-    combined <- computeCombine2()
-
-    accCount <- 0
-    accX <- numeric(input$numNumbers)
-    accY <- numeric(input$numNumbers)
-    rejCount <- 0
-    rejX <- numeric(input$numNumbers)
-    rejY <- numeric(input$numNumbers)
-    
-    for(i in 1:length(combined)) {
-      if(combined$y[i] <= f(combined$x[i])) {
-        accX[accCount + 1] <- combined$x[i]
-        accY[accCount + 1] <- combined$y[i]
-        accCount <- accCount + 1
-      } else {
-        rejX[rejCount + 1] <- combined$x[i]
-        rejY[rejCount + 1] <- combined$y[i]
-        rejCount <- rejCount + 1
-      }
-    }
-    
-    if(accCount > 0) {
-      accepted <- data.frame(x=accX[1:(accCount+1)], y=accY[1:(accCount+1)])
-    } else {
-      accepted <- data.frame(x=0, y=0)
-    }
-    if(rejCount > 0) {
-      rejected <- data.frame(x=rejX[1:(rejCount+1)], y=rejY[1:(rejCount+1)])
-    } else {
-      rejected <- data.frame(x=0, y=0)
-    }
-
-    accept <- data.frame(accX=x, accY=runif(x)*2)
-    reject <- data.frame(rejX=x, rejY=runif(x)*2)
-    df <- data.frame(x, yt, yf, yr, accept, reject)
-
-    ggplot(df, aes(x)) +
-      geom_line(aes(y=yt), color="red") +
-      geom_line(aes(y=yf), color="blue") +
-      geom_line(aes(y=yr), linetype="dashed") +
-      geom_point(aes(accX, accY), color="blue") +
-      geom_point(aes(rejX, rejY), color="red")
   })
   
   output$raw <- renderDataTable({

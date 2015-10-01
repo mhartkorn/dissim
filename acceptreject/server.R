@@ -2,108 +2,88 @@ library(shiny)
 library(ggplot2)
 
 shinyServer(function(input, output) {
-  vars <- reactiveValues(rawNum = runif(2000), num = 2000)
+  # Initial values
+  vars <- reactiveValues(rawNum = runif(2000), num = 2000, maxF = 2)
 
   #  
   # Functions
   #
-  
-  # Upper boundary
-  t <- function(x) { 2.5 }
+
   # Distribution function
   f <- function(x) { 
+    # Normal distribution centered on 0.5
     if(input$sFunctions == "Normalverteilung") {
-      return(dnorm(x))
-    } else if(input$sFunctions == "Beta-(3,4)-Verteilung") {
-      return(dbeta(x, 4, 3))
-    } else {
+      return(dnorm(x, mean = 0.5, sd = input$nNormSd))
+    }
+    # Beta distribution
+    else if(input$sFunctions == "Beta-Verteilung") {
+      return(dbeta(x, input$nBeta1, input$nBeta2))
+    }
+    # Normal distribution
+    else {
       return(dunif(x))
     }
   }
+  
+  # Upper boundary
+  t <- function(x) { vars$maxF }
 
   observe({
+    # Limit the random numbers to a maximum of 5000
     if(input$numNumbers > 5000) {
       vars$num = 5000
     } else {
       vars$num = input$numNumbers
     }
 
+    # Regenerate the numbers after a change
     vars$rawNum <- runif(vars$num)
   })
   
-  computeCombine2 <- reactive({
-    count <- vars$num / 2
-    x <- rep(0, count)
-    y <- rep(0, count)
-    
-    j <- 1
-    
-    loops <-vars$num
-    if(loops %% 2 != 0) {
-      loops <- loops - 1
-    }
-    
-    for(i in seq(1, loops, 2)) {
-      x[j] <- vars$rawNum[i]
-      y[j] <- vars$rawNum[i + 1]
-      j <- j + 1
-    }
-    
-    return(list("x" = x, "y" = y))
-  })
-  
-  checkStatus <- function(x, position, yf) {
-    return((t(position) * vars$rawNum[position]) < yf[position])
-  }
-  
   output$pAccRej <- renderPlot({
-    x <- seq(0, 1, 1 / vars$num)
+    x <- seq(0, 1, 1 / (vars$num - 1))
 
     # Precalculate all values (because we need them later anyways)
-    yt <- t(x)
     yf <- f(x)
+    # Get highest value to calculate t(x), not perfect but enough in this case
+    vars$maxF <- max(yf)
+    yt <- t(x)
 
-    accCount <- 0
-    accX <- numeric(vars$num)
-    accY <- numeric(vars$num)
-    rejCount <- 0
-    rejX <- numeric(vars$num)
-    rejY <- numeric(vars$num)
+    # Data frame which holds all values
+    result <- data.frame(x = x, y = yt * vars$rawNum, 
+                         type = character(vars$num),
+                         yt, yf,
+                         stringsAsFactors = FALSE)
     
+    # Counter for accepted numbers
+    accCount <- 0
+    
+    # Iterate over the values to check whether they are accepted or rejected
     for(i in 1:vars$num) {
-      if(checkStatus(x, i, yf)) {
-        accX[accCount + 1] <- x[i]
-        accY[accCount + 1] <- vars$rawNum[i] * t(i)
+      if(result$y[i] < yf[i]) {
+        result$type[i] <- "accepted"
         accCount <- accCount + 1
       } else {
-        rejX[rejCount + 1] <- x[i]
-        rejY[rejCount + 1] <- vars$rawNum[i] * t(i)
-        rejCount <- rejCount + 1
+        result$type[i] <- "rejected"
       }
     }
     
-    if(accCount > 0) {
-      accepted <- data.frame(accX=accX[1:(accCount+1)], accY=accY[1:(accCount+1)])
-    } else {
-      accepted <- data.frame(accX=0, accY=0)
-    }
-    if(rejCount > 0) {
-      rejected <- data.frame(rejX=rejX[1:(rejCount+1)], rejY=rejY[1:(rejCount+1)])
-    } else {
-      rejected <- data.frame(rejX=0, rejY=0)
-    }
+    # Update count string
+    output$tPercent <- renderText({
+      paste((accCount / vars$num)  * 100, "% der generierten Zahlen wurden akzeptiert.",
+            sep="")
+    })
     
-    df <- data.frame(x, yt, yf)
+    output$raw <- renderDataTable({
+      # Multiply random numbers with t(x) for a normalization towards the upper boundary
+      table <- data.frame(Zahlen = vars$rawNum * yt, Status = result$type)
+    })
     
-    ggplot(df, aes(x)) +
+    # Draw the plot
+    ggplot(result, aes(x)) +
       geom_line(aes(y=yt), color="red") +
       geom_line(aes(y=yf), color="blue") +
-      geom_point(data=accepted, aes(x=accX, y=accY), color="blue") +
-      geom_point(data=rejected, aes(x=rejX, y=rejY), color="red")
-    
-  })
-  
-  output$raw <- renderDataTable({
-    table <- data.frame(Nummern = vars$rawNum)
+      geom_point(data=result[result$type=="accepted",], aes(x=x, y=y), color="blue") +
+      geom_point(data=result[result$type=="rejected",], aes(x=x, y=y), color="red")
   })
 })

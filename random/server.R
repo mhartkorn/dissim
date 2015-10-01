@@ -99,7 +99,7 @@ shinyServer(function(input, output) {
   })
   
   output$tKsP <- renderText({
-    paste("p-value =", ksTest()$p.value)
+    paste("p-Wert =", ksTest()$p.value)
   })
   
   output$tKsD <- renderText({
@@ -108,11 +108,11 @@ shinyServer(function(input, output) {
   
   output$tKsR <- renderText({
     if(ksTest()$p.value <= 0.05) {
-      paste("Der p-Wert liegt unter 0,05. Es wird deshalb davon ausgegangen,
-            dass die Zahlen <strong>nicht</strong> gleichverteilt sind.")
+      paste("Der p-Wert liegt unter 0,05. Es wird deshalb mit 95% Wahrscheinlichkeit davon
+             ausgegangen, dass die Zahlen <strong>nicht</strong> gleichverteilt sind.")
     } else {
-      paste("Der p-Wert liegt über 0,05. Es wird deshalb davon ausgegangen,
-            dass die Zahlen gleichverteilt sind.")
+      paste("Der p-Wert liegt über 0,05. Es wird deshalb mit 95% Wahrscheinlichkeit davon 
+             ausgegangen, dass die Zahlen gleichverteilt sind.")
     }
   })
   
@@ -123,6 +123,27 @@ shinyServer(function(input, output) {
             mindestens 50 Zahlen gegeben sein.</span>')
     } else {
       paste("Die Anzahl der Zufallszahlen ist mit über 50 ausreichend.")
+    }
+  })
+  
+  chiTest <- function() {
+    # Use 100 cells
+    breaks <- c(seq(0, 1, by=0.01))
+    O <- table(cut(vars$rawNum, breaks=breaks))
+    chisq.test(O, p=diff(punif(breaks)), rescale.p=T)
+  }
+  
+  output$chiP <- renderText({
+    paste("p-Wert =", chiTest()$p.value)
+  })
+  
+  output$chiR <- renderText({
+    if(chiTest()$p.value <= 0.05) {
+      paste("Der p-Wert liegt unter 0,05. Es wird deshalb mit 95% Wahrscheinlichkeit davon
+             ausgegangen, dass die Zahlen <strong>nicht</strong> gleichverteilt sind.")
+    } else {
+      paste("Der p-Wert liegt über 0,05. Es wird deshalb mit 95% Wahrscheinlichkeit davon 
+             ausgegangen, dass die Zahlen gleichverteilt sind.")
     }
   })
   

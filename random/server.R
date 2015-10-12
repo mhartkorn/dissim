@@ -8,7 +8,7 @@ shinyServer(function(input, output) {
   observe({
     if(input$cbChoices == "RANDU") {
       # RANDU implementation
-      RANDU <- function(a, c, m, r, seed) {
+      RANDU <- function(a, m, r, seed) {
         if(r <= 0) {
           return(0)
         }
@@ -16,18 +16,44 @@ shinyServer(function(input, output) {
         x <- rep(0, r)
         x[1] <- seed
         for (i in 1:(r - 1)) {
-          x[i+1] <-(a * x[i] + c) %% m
+          x[i+1] <-(a * x[i]) %% m
         }
         
-        for(i in 1:r) {
-          x[i] = x[i] / m
-        }
-        return(x)
+        # Normalize
+        return(x / m)
       }
       
-      MAXINT = 2^31-1
-      vars$rawNum <- RANDU(a = 37, c = 1, r = input$numNumbers, 
+      MAXINT = 2^31
+      vars$rawNum <- RANDU(a = 65539, r = input$numNumbers, 
                            m = MAXINT, seed = runif(1) * MAXINT)
+    } else if (input$cbChoices == "Middle-Square") {
+      MiddleSquare <- function(r, m, seed) {
+        if(r <= 0) {
+          return(0)
+        }
+
+        x <- rep(0, r)
+
+        x[1] <- seed
+        s <- 0
+        s6 <- 0
+        r6 <- 0
+        for (i in 1:(r - 1)) {
+          # Square
+          s  <- x[i]^2
+          # Cut to 6 digits
+          s6 <- s %% 1000000
+          # Set last 2 digits to 0 (prep for removal)
+          r6 <- s6 - (s6 %% 100)
+          # Remove last 2 digits (no float because of previous step)
+          x[i+1] <- r6 / 100
+        }
+        
+        return(x / m)
+      }
+        
+      vars$rawNum <- MiddleSquare(r = input$numNumbers, m = 9999,
+                                    seed = sample(1000:9999, 1))
     } else {
       RNGkind(input$cbChoices)
       vars$rawNum <- runif(input$numNumbers)
@@ -91,7 +117,9 @@ shinyServer(function(input, output) {
   output$pSpectral3d <- renderPlot({
     combined <- computeCombine3()
     
-    scatterplot3d(combined$x, combined$y, combined$z, pch=16, angle=input$angle, xlab = "", ylab = "", zlab = "")
+    scatterplot3d(combined$x, combined$y, combined$z, pch=16, angle=input$angle,
+                  xlab = "", ylab = "", zlab = "",
+                  xlim = c(0, 1), ylim = c(0, 1), zlim = c(0, 1))
   })
   
   ksTest <- reactive({

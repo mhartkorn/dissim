@@ -8,14 +8,14 @@ shinyUI(pageWithSidebar(
     numericInput("numNumbers", label = "Anzahl der Zufallszahlen", 
                  min = 100, max = 20000, value = 1500),
     selectInput("cbChoices", "Generatorname", 
-                c("Mersenne-Twister", "Wichmann-Hill", "Knuth-TAOCP-2002", "RANDU"))
+                c("Mersenne-Twister", "Knuth-TAOCP-2002", "Middle-Square", "RANDU"))
   ),
   
   mainPanel(
     tabsetPanel(
       tabPanel("Spektral-Test",
                plotOutput("pSpectral2d", width = "400px", height = "400px"),
-               sliderInput("angle", min = 0, max = 180, value = 88, 
+               sliderInput("angle", min = 0, max = 180, value = 48, 
                            label = "Winkel für 3D Graph"),
                plotOutput("pSpectral3d", width = "400px", height = "400px")
       ),
